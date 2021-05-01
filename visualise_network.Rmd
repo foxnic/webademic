@@ -1,5 +1,5 @@
 ---
-title: "visNetwork_tutorial"
+title: "webademic"
 author: "Nic Fox"
 date: "01/05/2021"
 output: html_document
@@ -9,9 +9,13 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Visualise how nodes are linked with this interactive network visualisation using the `visNetwork` R library
+Visualise how papers are connected with an interactive network visualisation.
 
-Based on this tutorial: https://rpubs.com/a_pear_9/visNetwork
+- each node is a paper
+- you can click on a node to see more details about the paper
+- you can click on a line between 2 papers to see how the papers are connected
+- you can zoom in and out
+- you can move nodes (papers) around
 
 ## Import the visNetwork library
 ```{r import_packages}
@@ -19,24 +23,19 @@ library(visNetwork)
 ```
 
 ## Create nodes and edges
-First, create a list of numbers from 1 to 16 to use as node IDs.
+First, create a list of node IDs for 2 papers.
 ```{r create_nodes, message=FALSE}
-# Create sixteen nodes
-node_IDs <- 1:16
+# Create nodes
+node_IDs <- 1:2
 
-# View the sixteen nodes
+# View the node IDs
 node_IDs
 ```
 
-Then create a list of 'from' and 'to' node IDs to form the edges.
+Then create a list of 'from' and 'to' node IDs to form the edges. Just one edge for now, as we only have 2 papers...
 ```{r create_edges, message=FALSE}
-# create a list of numbers by taking each number in the 'population' variable
-# twice (i.e. each number is repeated once) to give 32 numbers
-from_nodes  <- rep(node_IDs, each = 2) # from
-
-# create a list of numbers by taking a sample of 32 from the 'population' variable
-# with replacement
-to_nodes  <- sample(x=node_IDs, size=32, replace=TRUE) # to
+from_nodes  <- c(1)
+to_nodes  <- c(2)
 
 # View the 'edge from' and 'to' values
 cat('from_nodes: \n', from_nodes, '\n\n', 'to_nodes: \n', to_nodes)
@@ -44,16 +43,24 @@ cat('from_nodes: \n', from_nodes, '\n\n', 'to_nodes: \n', to_nodes)
 
 Now, create a 'nodes' dataframe containing 2 columns:
 - id (populated with the node IDs)
-- label (populated with 'N' plus the node ID e.g. N1. This is what will be displayed in the node in the visualisation.)
+- label (this is what will be displayed in the node in the visualisation)
 
 Write the nodes dataframe to a CSV and view the dataframe.
 ```{r create_nodes_df, message=FALSE}
+# create the list of reference strings for each paper
+paper_refs = c('Sidebottom et al, 2020', 'Harris & Shalev Greene, 2016')
+
 # Create dataframe of nodes
 nodes <- data.frame(
                     id = node_IDs,
-                    label = paste0("N", node_IDs),
-                    title = paste0('This is node ', node_IDs)
+                    label = paper_refs
 )
+
+# create a list of the title for each paper
+paper_titles <- c('Missing children: risks, repeats and responses', 'Police attitudes in England to return interviews, in repeat missing person cases')
+  
+# add the paper tags as the node titles
+nodes$title <- paper_titles
 
 # save the edges dataframe as a csv
 write.csv(nodes, 'nodes.csv', row.names=FALSE)
@@ -77,7 +84,11 @@ edges <- data.frame(
 )
 
 # add a 'title' column contain the tooltip text for the edge
-edges$title <- paste0('from: ', edges$from, '<br>to: ', edges$to)
+edges$title <- 'Consistent with this statement, Harris and Shalev-Greene (2016) concluded
+that the customary return to home interviews and police ‘Safe & Well Check’2 are carried out
+with less rigour for repeat runaways than for those reported missing for the first time. They quoted
+one police officer as saying that, ‘after a child has gone missing three times, a return interview is a
+fairly pointless exercise’ (Harris and Shalev-Greene 2016, p. 260).'
 
 # save the edges dataframe as a csv
 write.csv(edges, 'edges.csv', row.names=FALSE)
@@ -96,7 +107,7 @@ Click on an edge to see the tooltip for the edge, and click on a node to see the
 You can also zoom in and zoom out on the visualisation, and move nodes around.
 ```{r visualise_network, message=FALSE}
 network <- visNetwork(nodes, edges) %>% 
-                        visNodes(shape = "box", color = "#ffc34d", font = c(color="white")) %>% 
+                        visNodes(shape = "box", color = "#6b1773", font = c(color="white")) %>% 
                         visEdges(color = "black")
 
 # save network as an html file
