@@ -17,96 +17,22 @@ Visualise how papers are connected with an interactive network visualisation.
 - you can zoom in and out
 - you can move nodes (papers) around
 
-## Import the visNetwork library
-```{r import_packages}
+```{r import_packages, warning=FALSE, include=FALSE}
 library(visNetwork)
+library(tidyverse)
 ```
 
-## Create nodes and edges
-First, create a list of node IDs for 2 papers.
-```{r create_nodes, message=FALSE}
-# Create nodes
-node_IDs <- 1:2
-
-# View the node IDs
-node_IDs
+```{r import_nodes, include=FALSE}
+nodes <- read_csv("nodes.csv")
 ```
 
-Then create a list of 'from' and 'to' node IDs to form the edges. Just one edge for now, as we only have 2 papers...
-```{r create_edges, message=FALSE}
-from_nodes  <- c(1)
-to_nodes  <- c(2)
-
-# View the 'edge from' and 'to' values
-cat('from_nodes: \n', from_nodes, '\n\n', 'to_nodes: \n', to_nodes)
+```{r import_edges, include=FALSE}
+edges <- read_csv("edges.csv")
 ```
 
-Now, create a 'nodes' dataframe containing 2 columns:
-- id (populated with the node IDs)
-- label (this is what will be displayed in the node in the visualisation)
-
-Write the nodes dataframe to a CSV and view the dataframe.
-```{r create_nodes_df, message=FALSE}
-# create the list of reference strings for each paper
-paper_refs = c('Sidebottom et al, 2020', 'Harris & Shalev Greene, 2016')
-
-# Create dataframe of nodes
-nodes <- data.frame(
-                    id = node_IDs,
-                    label = paper_refs
-)
-
-# create a list of the title for each paper
-paper_titles <- c('Missing children: risks, repeats and responses', 'Police attitudes in England to return interviews, in repeat missing person cases')
-  
-# add the paper tags as the node titles
-nodes$title <- paper_titles
-
-# save the edges dataframe as a csv
-write.csv(nodes, 'nodes.csv', row.names=FALSE)
-
-# View the dataframe of nodes
-nodes
-```
-
-Create an 'edges' dataframe with 2 columns:
-- from (populated with the 'relate_fr' node IDs for the edges)
-- to (populated with the 'relate_to' node IDs for the edges)
-
-Then add a new 'title' columns containing the html text to be displayed in the tooltip (pop-up) when the user clicks on the edge.
-
-Write the edges dataframe to a CSV and view the dataframe.
-```{r create_edges_df, message=FALSE}
-# Create dataframe of edges
-edges <- data.frame(
-  from = from_nodes,
-  to   = to_nodes
-)
-
-# add a 'title' column contain the tooltip text for the edge
-edges$title <- 'Consistent with this statement, Harris and Shalev-Greene (2016) concluded
-that the customary return to home interviews and police ‘Safe & Well Check’2 are carried out
-with less rigour for repeat runaways than for those reported missing for the first time. They quoted
-one police officer as saying that, ‘after a child has gone missing three times, a return interview is a
-fairly pointless exercise’ (Harris and Shalev-Greene 2016, p. 260).'
-
-# save the edges dataframe as a csv
-write.csv(edges, 'edges.csv', row.names=FALSE)
-
-# View the dataframe
-edges
-```
-
-## Create and visualise the network
-create a `visNetwork` using the nodes and edges dataframes and then define the aesthetics of the nodes and edges.
-
-Then save the network visualisation as an html file, then view the visualisation.
-
-Click on an edge to see the tooltip for the edge, and click on a node to see the tooltip for the node. If the tooltip doesn't appear on the first click, try once or twice more.
-
-You can also zoom in and zoom out on the visualisation, and move nodes around.
-```{r visualise_network, message=FALSE}
+```{r visualise_network, message=FALSE, echo=FALSE}
 network <- visNetwork(nodes, edges) %>% 
+                        visEdges(arrows = 'to') %>% 
                         visNodes(shape = "box", color = "#6b1773", font = c(color="white")) %>% 
                         visEdges(color = "black")
 
